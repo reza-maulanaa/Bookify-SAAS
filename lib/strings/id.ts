@@ -1,0 +1,121 @@
+// Semua UI string di sini (PRD §17 i18n) — siap dipindah ke next-intl nanti.
+export const t = {
+  publicPage: {
+    bookCta: "Buat Janji",
+    servicesHeading: "Layanan Kami",
+    poweredBy: "Didukung oleh SaaS-ify",
+    notFoundTitle: "Bisnis tidak ditemukan",
+    notFoundBody: "Alamat yang Anda buka tidak terdaftar di SaaS-ify.",
+    minutes: "menit",
+    free: "Gratis",
+  },
+  nav: {
+    bookings: "Booking",
+    services: "Layanan",
+    staff: "Staf",
+  },
+  admin: {
+    tenantHeading: "Bisnis Anda",
+    bookingPageLabel: "Halaman booking",
+    save: "Simpan",
+    cancel: "Batal",
+    delete: "Hapus",
+    actions: "Aksi",
+    active: "Aktif",
+    inactive: "Nonaktif",
+    name: "Nama",
+    all: "Semua",
+    filter: "Filter",
+    notFound: "Tidak ditemukan.",
+    empty: "Belum ada data.",
+  },
+  services: {
+    heading: "Layanan",
+    new: "Layanan Baru",
+    edit: "Edit Layanan",
+    description: "Deskripsi",
+    duration: "Durasi (menit)",
+    price: "Harga (Rp)",
+    category: "Kategori",
+    bufferBefore: "Buffer sebelum (menit)",
+    bufferAfter: "Buffer sesudah (menit)",
+    minLeadTime: "Minimum lead time (menit)",
+    maxHorizon: "Maks. hari ke depan",
+    sortOrder: "Urutan tampil",
+  },
+  staff: {
+    heading: "Staf",
+    new: "Staf Baru",
+    edit: "Edit Staf",
+    bio: "Bio",
+    schedule: "Jadwal Mingguan",
+    workDay: "Hari kerja",
+    start: "Mulai",
+    end: "Selesai",
+    breakStart: "Istirahat mulai",
+    breakEnd: "Istirahat selesai",
+    servicesAssigned: "Layanan yang Dilayani",
+    timeOff: "Cuti / Libur",
+    timeOffDate: "Tanggal",
+    timeOffReason: "Alasan",
+    timeOffFullDay: "Kosongkan jam untuk libur seharian",
+    addTimeOff: "Tambah Libur",
+  },
+  bookings: {
+    heading: "Booking",
+    new: "Booking Baru",
+    detail: "Detail Booking",
+    reschedule: "Reschedule",
+    date: "Tanggal",
+    time: "Waktu",
+    customer: "Pelanggan",
+    service: "Layanan",
+    staffMember: "Staf",
+    status: "Status",
+    price: "Harga",
+    chooseSlot: "Pilih jam tersedia",
+    noSlots: "Tidak ada slot tersedia di tanggal ini.",
+    showSlots: "Lihat Slot",
+    customerName: "Nama pelanggan",
+    customerEmail: "Email pelanggan",
+    customerPhone: "No. HP pelanggan",
+    customerNotes: "Catatan pelanggan",
+    internalNotes: "Catatan internal",
+    confirm: "Konfirmasi Booking",
+    slotTaken: "Slot tidak lagi tersedia. Silakan pilih jam lain.",
+    cancelBooking: "Batalkan Booking",
+    cancelReason: "Alasan pembatalan",
+    markNoShow: "Tandai Tidak Hadir",
+    markCompleted: "Tandai Selesai",
+    cancelledAt: "Dibatalkan pada",
+    createdAt: "Dibuat",
+  },
+  statusLabels: {
+    pending: "Menunggu",
+    confirmed: "Terkonfirmasi",
+    cancelled: "Dibatalkan",
+    no_show: "Tidak Hadir",
+    completed: "Selesai",
+    payment_failed: "Pembayaran Gagal",
+  } as Record<string, string>,
+  // PRD: 0=Senin … 6=Minggu
+  dayNames: ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"],
+} as const;
+
+export function formatRupiah(amount: number): string {
+  return amount === 0
+    ? t.publicPage.free
+    : new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0,
+      }).format(amount);
+}
+
+export function formatDateTime(date: string | Date, timeZone: string): string {
+  return new Intl.DateTimeFormat("id-ID", {
+    timeZone,
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(date));
+}

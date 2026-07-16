@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentTenant } from "@/lib/tenant";
+import { t } from "@/lib/strings/id";
 import { InfoIcon } from "lucide-react";
 import { FetchDataSteps } from "@/components/tutorial/fetch-data-steps";
 import { Suspense } from "react";
@@ -16,6 +18,29 @@ async function UserDetails() {
   return JSON.stringify(data.claims, null, 2);
 }
 
+async function TenantDetails() {
+  const tenant = await getCurrentTenant();
+  if (!tenant) return null;
+
+  return (
+    <div className="flex flex-col gap-2 items-start">
+      <h2 className="font-bold text-2xl mb-4">{t.admin.tenantHeading}</h2>
+      <p className="text-sm">
+        <span className="font-semibold">{tenant.name}</span> ({tenant.plan})
+      </p>
+      <p className="text-sm text-muted-foreground">
+        {t.admin.bookingPageLabel}:{" "}
+        <a
+          className="underline"
+          href={`http://${tenant.subdomain}.${process.env.NEXT_PUBLIC_APP_DOMAIN ?? "localhost:3000"}`}
+        >
+          {tenant.subdomain}.{process.env.NEXT_PUBLIC_APP_DOMAIN ?? "localhost:3000"}
+        </a>
+      </p>
+    </div>
+  );
+}
+
 export default function ProtectedPage() {
   return (
     <div className="flex-1 w-full flex flex-col gap-12">
@@ -26,6 +51,9 @@ export default function ProtectedPage() {
           user
         </div>
       </div>
+      <Suspense>
+        <TenantDetails />
+      </Suspense>
       <div className="flex flex-col gap-2 items-start">
         <h2 className="font-bold text-2xl mb-4">Your user details</h2>
         <pre className="text-xs font-mono p-3 rounded border max-h-32 overflow-auto">
