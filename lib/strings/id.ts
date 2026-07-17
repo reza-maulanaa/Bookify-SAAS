@@ -133,6 +133,40 @@ export const t = {
   } as Record<string, string>,
   // PRD: 0=Senin … 6=Minggu
   dayNames: ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"],
+  // Template email (PRD §10). {placeholder} diisi lib/notify.ts.
+  email: {
+    greeting: "Halo {name},",
+    detailLine: "{service} bersama {staff} pada {datetime}.",
+    manageLine: "Kelola booking Anda (ubah jadwal / batalkan):",
+    confirmed: {
+      subject: "Booking terkonfirmasi — {service} di {tenant}",
+      body: "Booking Anda sudah terkonfirmasi.",
+    },
+    cancelled: {
+      subject: "Booking dibatalkan — {service} di {tenant}",
+      body: "Booking Anda telah dibatalkan.",
+    },
+    rescheduled: {
+      subject: "Jadwal booking berubah — {service} di {tenant}",
+      body: "Jadwal booking Anda telah diubah. Jadwal baru:",
+    },
+    reminder_24h: {
+      subject: "Pengingat: besok ada janji di {tenant}",
+      body: "Jangan lupa, Anda punya janji besok.",
+    },
+    reminder_1h: {
+      subject: "Pengingat: 1 jam lagi — {service} di {tenant}",
+      body: "Janji Anda dimulai sebentar lagi.",
+    },
+    adminNewBooking: {
+      subject: "Booking baru — {service}, {datetime}",
+      body: "Ada booking baru dari {name} ({email}).",
+    },
+    adminCancelled: {
+      subject: "Booking dibatalkan pelanggan — {service}, {datetime}",
+      body: "Booking atas nama {name} dibatalkan oleh pelanggan.",
+    },
+  },
 } as const;
 
 export function formatRupiah(amount: number): string {

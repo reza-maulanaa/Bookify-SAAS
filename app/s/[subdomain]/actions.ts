@@ -1,7 +1,9 @@
 "use server";
 
+import { after } from "next/server";
 import { z } from "zod";
 import { getAvailableSlots } from "@/lib/availability-server";
+import { notifyBookingEvent } from "@/lib/notify";
 import {
   createAdminClient,
   verifyPublicBooking,
@@ -230,6 +232,8 @@ export async function createPublicBooking(
       }
       throw new Error(error.message);
     }
+    // Email dikirim SETELAH response (PRD §10: jangan synchronous di request).
+    after(() => notifyBookingEvent(booking.id, "confirmed", { byCustomer: true }));
     return { ok: true, id: booking.id };
   } catch (e) {
     return fail(e);
@@ -271,6 +275,7 @@ export async function cancelPublicBooking(
       .eq("tenant_id", tenant.id)
       .in("status", ["pending", "confirmed"]);
     if (error) throw new Error(error.message);
+    after(() => notifyBookingEvent(booking.id, "cancelled", { byCustomer: true }));
     return { ok: true, id: booking.id };
   } catch (e) {
     return fail(e);
@@ -320,6 +325,7 @@ export async function reschedulePublicBooking(
       if (error.code === "23P01") throw new Error(t.bookings.slotTaken);
       throw new Error(error.message);
     }
+    after(() => notifyBookingEvent(booking.id, "rescheduled"));
     return { ok: true, id: booking.id };
   } catch (e) {
     return fail(e);

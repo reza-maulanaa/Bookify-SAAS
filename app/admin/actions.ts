@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { z } from "zod";
+import { notifyBookingEvent } from "@/lib/notify";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentTenant } from "@/lib/tenant";
 import { getAvailableSlots } from "@/lib/availability-server";
@@ -297,27 +299,32 @@ export async function createBooking(form: FormData): Promise<ActionResult> {
     const start = new Date(parsed.start_iso);
     const end = new Date(start.getTime() + service.duration_min * 60_000);
 
-    const { error } = await supabase.from("bookings").insert({
-      tenant_id: tenant.id,
-      customer_id: customer.id,
-      service_id: parsed.service_id,
-      staff_id: parsed.staff_id,
-      start_time: start.toISOString(),
-      end_time: end.toISOString(),
-      // Booking manual admin langsung confirmed (pembayaran di Phase 3).
-      status: "confirmed",
-      payment_mode: service.payment_mode,
-      total_price: service.price,
-      customer_notes: parsed.customer_notes || null,
-      internal_notes: parsed.internal_notes || null,
-      idempotency_key: parsed.idempotency_key,
-    });
+    const { data: booking, error } = await supabase
+      .from("bookings")
+      .insert({
+        tenant_id: tenant.id,
+        customer_id: customer.id,
+        service_id: parsed.service_id,
+        staff_id: parsed.staff_id,
+        start_time: start.toISOString(),
+        end_time: end.toISOString(),
+        // Booking manual admin langsung confirmed (pembayaran di-skip, lihat PRD).
+        status: "confirmed",
+        payment_mode: service.payment_mode,
+        total_price: service.price,
+        customer_notes: parsed.customer_notes || null,
+        internal_notes: parsed.internal_notes || null,
+        idempotency_key: parsed.idempotency_key,
+      })
+      .select("id")
+      .single();
     if (error) {
       // 23P01 = exclusion (slot bentrok), 23505 = unique (double submit)
       if (error.code === "23P01") throw new Error(t.bookings.slotTaken);
       if (error.code === "23505") return { ok: true }; // idempotent replay
       throw new Error(error.message);
     }
+    after(() => notifyBookingEvent(booking.id, "confirmed"));
     revalidatePath("/admin/bookings");
     return { ok: true };
   } catch (e) {
@@ -347,6 +354,7 @@ export async function cancelBooking(
       .eq("tenant_id", tenant.id)
       .in("status", ["pending", "confirmed"]);
     if (error) throw new Error(error.message);
+    after(() => notifyBookingEvent(id, "cancelled"));
     revalidatePath("/admin/bookings");
     return { ok: true };
   } catch (e) {
@@ -405,6 +413,7 @@ export async function rescheduleBooking(
       if (error.code === "23P01") throw new Error(t.bookings.slotTaken);
       throw new Error(error.message);
     }
+    after(() => notifyBookingEvent(id, "rescheduled"));
     revalidatePath("/admin/bookings");
     return { ok: true };
   } catch (e) {

@@ -20,6 +20,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.rewrite(new URL("/404", request.url));
   }
 
+  // Route cron auth pakai Bearer CRON_SECRET sendiri, bukan session Supabase.
+  if (request.nextUrl.pathname.startsWith("/api/cron/")) {
+    return NextResponse.next();
+  }
+
   return await updateSession(request);
 }
 

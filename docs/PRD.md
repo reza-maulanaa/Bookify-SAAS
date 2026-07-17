@@ -125,7 +125,7 @@ Perf: public LCP <2.5s; availability <500ms; API p95 <300ms read / <1s write. Re
 - Phase 0 (mg 1-2): setup, schema+seed, auth, multi-tenant middleware, RLS, CI/CD. ✅ SELESAI
 - Phase 1 (mg 3-5): service/staff CRUD + schedule, availability algorithm + tests, booking manual admin, conflict/idempotency. ✅ SELESAI
 - Phase 2 (mg 6-7): public landing + full booking flow + confirmation + self-service manage. ✅ SELESAI
-- Phase 3 (mg 8-9): Stripe Checkout/Connect + webhook, email + WA notification, reminder jobs. ← BERIKUTNYA
+- Phase 3 (mg 8-9): Stripe Checkout/Connect + webhook, email + WA notification, reminder jobs. → DIKERJAKAN SEBAGIAN: notifikasi email + reminder ✅ (2026-07-17); payment DI-SKIP (keputusan owner, lihat deviasi 6). WA belum.
 - Phase 4 (mg 10-11): calendar day/week/month + drag-drop, dashboard KPI + charts, reports.
 - Phase 5 (mg 12-13): onboarding wizard, page customization, custom domain, plan limits, E2E, marketing site.
 
@@ -153,7 +153,9 @@ Deviasi yang SUDAH DIPUTUSKAN owner (jangan re-litigasi):
 2. **SQL migration murni** (`supabase/migrations/`), bukan Drizzle — RLS/trigger/exclusion constraint wajib SQL. Drizzle boleh masuk nanti jika query bertipe makin banyak.
 3. **npm**, bukan pnpm (sudah terlanjur, tidak worth migrasi).
 4. React Hook Form belum dipakai — native form + Zod di server action cukup untuk form saat ini.
-5. Redis/queue/Zustand/TanStack Query belum ada — tambah saat kebutuhan nyata muncul (Phase 3 pakai background job untuk notifikasi).
+5. Redis/queue/Zustand/TanStack Query belum ada — tambah saat kebutuhan nyata muncul.
+6. **Payment gateway DI-SKIP untuk MVP** (owner belum punya gateway, 2026-07-17): semua booking langsung `confirmed`, mode efektif free/bayar di tempat. Titik masuk payment nanti: `createPublicBooking` di `app/s/[subdomain]/actions.ts`. Kandidat: Midtrans/Xendit (PRD Q1) atau transfer manual + konfirmasi admin.
+7. Notifikasi email TANPA SDK Resend/React Email — `fetch` ke API Resend + template string di `lib/strings/id.ts`; dispatch pakai `next/server after()` (bukan queue), reminder via route cron `app/api/cron/reminders` (Bearer `CRON_SECRET`). Upgrade ke Inngest/React Email saat butuh retry/desain kompleks.
 
 Detail lengkap arsitektur, gotchas, dan prompt next-step: lihat vault Obsidian
 `~/SECOND-BRAIN/CODE/10 Projects/SaaS-ify Booking/SaaS-ify Booking.md`.
