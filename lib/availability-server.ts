@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import {
   computeAvailableSlots,
@@ -16,14 +17,27 @@ export async function getAvailableSlots(args: {
   serviceId: string;
   date: string; // YYYY-MM-DD (tanggal lokal tenant)
   now?: Date;
+  /** Override client (service role untuk flow publik — anon tak bisa baca bookings). */
+  client?: SupabaseClient;
+  /** Reschedule: booking ini diabaikan saat cek konflik (slot lamanya sendiri). */
+  excludeBookingId?: string;
 }): Promise<Slot[]> {
-  const supabase = await createClient();
+  const supabase = args.client ?? (await createClient());
   // PRD day_of_week: 0=Senin; JS getUTCDay: 0=Minggu
   const dow = (new Date(`${args.date}T00:00:00Z`).getUTCDay() + 6) % 7;
   const dayStart = wallTimeToUtc(args.date, "00:00", args.timezone);
   // Jendela ±1 hari agar booking lintas-tengah-malam + buffer tetap terdeteksi
   const winStart = new Date(dayStart.getTime() - DAY).toISOString();
   const winEnd = new Date(dayStart.getTime() + 2 * DAY).toISOString();
+
+  let bookingsQ = supabase
+    .from("bookings")
+    .select("start_time,end_time,service:services(buffer_before,buffer_after)")
+    .eq("staff_id", args.staffId)
+    .in("status", ["pending", "confirmed"])
+    .gte("start_time", winStart)
+    .lt("start_time", winEnd);
+  if (args.excludeBookingId) bookingsQ = bookingsQ.neq("id", args.excludeBookingId);
 
   const [service, schedule, bookings, timeOff, holiday] = await Promise.all([
     supabase
@@ -38,20 +52,13 @@ export async function getAvailableSlots(args: {
       .eq("day_of_week", dow)
       .eq("is_active", true)
       .limit(1),
-    supabase
-      .from("bookings")
-      .select("start_time,end_time,service:services(buffer_before,buffer_after)")
-      .eq("staff_id", args.staffId)
-      .in("status", ["pending", "confirmed"])
-      .gte("start_time", winStart)
-      .lt("start_time", winEnd)
-      .overrideTypes<
-        {
-          start_time: string;
-          end_time: string;
-          service: { buffer_before: number; buffer_after: number } | null;
-        }[]
-      >(),
+    bookingsQ.overrideTypes<
+      {
+        start_time: string;
+        end_time: string;
+        service: { buffer_before: number; buffer_after: number } | null;
+      }[]
+    >(),
     supabase
       .from("staff_time_off")
       .select("start_time,end_time")

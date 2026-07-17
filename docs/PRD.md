@@ -124,8 +124,8 @@ Perf: public LCP <2.5s; availability <500ms; API p95 <300ms read / <1s write. Re
 
 - Phase 0 (mg 1-2): setup, schema+seed, auth, multi-tenant middleware, RLS, CI/CD. ✅ SELESAI
 - Phase 1 (mg 3-5): service/staff CRUD + schedule, availability algorithm + tests, booking manual admin, conflict/idempotency. ✅ SELESAI
-- Phase 2 (mg 6-7): public landing + full booking flow + confirmation + self-service manage. ← BERIKUTNYA
-- Phase 3 (mg 8-9): Stripe Checkout/Connect + webhook, email + WA notification, reminder jobs.
+- Phase 2 (mg 6-7): public landing + full booking flow + confirmation + self-service manage. ✅ SELESAI
+- Phase 3 (mg 8-9): Stripe Checkout/Connect + webhook, email + WA notification, reminder jobs. ← BERIKUTNYA
 - Phase 4 (mg 10-11): calendar day/week/month + drag-drop, dashboard KPI + charts, reports.
 - Phase 5 (mg 12-13): onboarding wizard, page customization, custom domain, plan limits, E2E, marketing site.
 
@@ -146,7 +146,7 @@ Q1 payment: Stripe primary, Midtrans/Xendit fallback. Q2 WA: Twilio dulu. Q3 cla
 
 ---
 
-## CATATAN IMPLEMENTASI (status per 2026-07-16, Phase 0+1 selesai)
+## CATATAN IMPLEMENTASI (status per 2026-07-17, Phase 0+1+2 selesai)
 
 Deviasi yang SUDAH DIPUTUSKAN owner (jangan re-litigasi):
 1. **Supabase Auth**, bukan NextAuth v5 — starter repo sudah punya alur lengkap.
