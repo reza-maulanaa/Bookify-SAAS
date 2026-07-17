@@ -24,6 +24,12 @@ export default function AdminLayout({
             <Suspense>
               <TenantName />
             </Suspense>
+            <Link href="/admin" className="hover:underline">
+              {t.nav.dashboard}
+            </Link>
+            <Link href="/admin/calendar" className="hover:underline">
+              {t.nav.calendar}
+            </Link>
             <Link href="/admin/bookings" className="hover:underline">
               {t.nav.bookings}
             </Link>

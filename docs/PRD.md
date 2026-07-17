@@ -126,7 +126,7 @@ Perf: public LCP <2.5s; availability <500ms; API p95 <300ms read / <1s write. Re
 - Phase 1 (mg 3-5): service/staff CRUD + schedule, availability algorithm + tests, booking manual admin, conflict/idempotency. ✅ SELESAI
 - Phase 2 (mg 6-7): public landing + full booking flow + confirmation + self-service manage. ✅ SELESAI
 - Phase 3 (mg 8-9): Stripe Checkout/Connect + webhook, email + WA notification, reminder jobs. → DIKERJAKAN SEBAGIAN: notifikasi email + reminder ✅ (2026-07-17); payment DI-SKIP (keputusan owner, lihat deviasi 6). WA belum.
-- Phase 4 (mg 10-11): calendar day/week/month + drag-drop, dashboard KPI + charts, reports.
+- Phase 4 (mg 10-11): calendar day/week/month + drag-drop, dashboard KPI + charts, reports. ✅ SELESAI (2026-07-17; reports = ekspor CSV, agregat lanjutan + cache 5 menit ditunda)
 - Phase 5 (mg 12-13): onboarding wizard, page customization, custom domain, plan limits, E2E, marketing site.
 
 ## 19. Success Metrics
